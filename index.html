@@ -8,7 +8,6 @@
 :root{
   --bg:#f6f8ff;--card:#fff;--ink:#1f2740;--muted:#6b7796;--line:#dbe3ff;
   --pink:#ff7eb6;--sky:#6cc8ff;--mint:#6ee7b7;--yellow:#ffd166;--orange:#ff9f43;--violet:#8b7cf6;
-  --free:#edf1f9;
   --shadow:0 10px 28px rgba(73,92,168,.12);
 }
 *{box-sizing:border-box}
@@ -18,7 +17,7 @@ button{border:0;border-radius:14px;padding:12px 14px;font-weight:800;cursor:poin
 .app{max-width:1100px;margin:auto;padding:12px 12px 96px}
 .hero{background:linear-gradient(135deg,#7c8cff,#6cc8ff,#8b7cf6);color:#fff;border-radius:24px;padding:18px 16px;box-shadow:var(--shadow)}
 .hero h1{margin:0;font-size:24px}
-.hero p{margin:8px 0 0;font-size:13px;opacity:.95;line-height:1.5}
+.hero p{margin:8px 0 0;font-size:13px;opacity:.96;line-height:1.5}
 .card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:14px;margin-top:12px}
 .grid2,.grid3,.grid4{display:grid;gap:10px}
 .grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid4{grid-template-columns:repeat(4,1fr)}
@@ -32,7 +31,7 @@ input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-ra
 .kidHeader{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .kidHeader h2{font-size:22px;margin:0}.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;background:#eef2ff;color:#4154d1}
 .kid.yuina .badge{background:#ffe8f2;color:#d1437c}
-.canvasWrap{background:radial-gradient(circle at 50% 0%,#ffffff 0%,#f7f9ff 100%);border:1px solid var(--line);border-radius:18px;padding:8px}
+.canvasWrap{background:radial-gradient(circle at 50% 0%,#ffffff 0%,#f7f9ff 100%);border:1px solid var(--line);border-radius:18px;padding:8px;overflow:hidden}
 .chartCanvas{width:100%;height:auto;display:block}
 .helper{font-size:12px;color:var(--muted);line-height:1.5}
 .rows{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:8px}
@@ -59,7 +58,7 @@ input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-ra
 <div class="app">
   <div class="hero">
     <h1>🌈 わくわく こどもスケジュール</h1>
-    <p>円グラフで1日がひと目で見えるよ。項目・スタート時間・所要時間を入れると、空いている時間は自動で「自由時間」になります。朝のスタートは5:00固定。</p>
+    <p>円グラフで1日の流れがひと目で見えるよ。項目・スタート時間・所要時間を入れるだけ。朝のスタートは5:00、円グラフの中にも「何時に何をするか」が表示されます。</p>
   </div>
 
   <div class="card">
@@ -99,12 +98,12 @@ input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-ra
 'use strict';
 const START_MIN = 5*60;
 const END_MIN = 21*60;
-const ACTIONS = ['起床','学校','朝食','宿題','勉強','ゲーム','遊ぶ','友達と遊ぶ','散歩','お出かけ','昼食','おやつ','夕食','お風呂','明日の準備','歯みがき','読書','お手伝い','習い事','就寝','自由時間','自由記載'];
+const ACTIONS = ['起床','学校','朝食','宿題','勉強','ゲーム','遊ぶ','友達と遊ぶ','散歩','お出かけ','昼食','おやつ','夕食','お風呂','明日の準備','歯みがき','読書','お手伝い','習い事','就寝','自由記載'];
 const COLORS = {
   '起床':'#6cc8ff','学校':'#8b7cf6','朝食':'#ffd166','宿題':'#a78bfa','勉強':'#7c8cff','ゲーム':'#34d399',
   '遊ぶ':'#ff9f43','友達と遊ぶ':'#ff7eb6','散歩':'#5eead4','お出かけ':'#f97316','昼食':'#fbbf24','おやつ':'#f472b6',
   '夕食':'#fb923c','お風呂':'#60a5fa','明日の準備':'#22c55e','歯みがき':'#93c5fd','読書':'#c084fc','お手伝い':'#4ade80',
-  '習い事':'#818cf8','就寝':'#64748b','自由時間':'#edf1f9','自由記載':'#94a3b8'
+  '習い事':'#818cf8','就寝':'#64748b','自由記載':'#94a3b8'
 };
 let state = { names:['ひろと','ゆいな'], activeDate:'', days:{}, templates:[] };
 
@@ -123,6 +122,7 @@ function durationOptions(current){const vals=[0.5,1,1.5,2,2.5,3,3.5,4];return va
 function timeOptions(current){return times().map(t=>`<option ${t===current?'selected':''}>${t}</option>`).join('')}
 function actionOptions(current){return ACTIONS.map(a=>`<option ${a===current?'selected':''}>${a}</option>`).join('')}
 function colorFor(label){return COLORS[label] || '#94a3b8'}
+function roundRect(ctx,x,y,w,h,r,fill){ctx.beginPath(); if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);} else {ctx.rect(x,y,w,h);} ctx.fillStyle=fill; ctx.fill();}
 
 function defaultRows(){
   return [
@@ -154,46 +154,87 @@ function normalizeRows(rows){
   for(let i=1;i<items.length;i++){
     if(items[i].start < items[i-1].end){warnings.push(`${minToTime(items[i].start)} の「${items[i].label}」が前の予定と重なっています。`)}
   }
-
-  let segs=[]; let cur=START_MIN;
-  items.forEach(it=>{
-    if(it.start>cur){segs.push({label:'自由時間',action:'自由時間',start:cur,end:it.start,color:colorFor('自由時間')});}
-    const s=Math.max(cur,it.start);
-    if(it.end>s){segs.push({label:it.label,action:it.action,start:s,end:it.end,color:colorFor(it.action)});cur=it.end;}
-  });
-  if(cur<END_MIN){segs.push({label:'自由時間',action:'自由時間',start:cur,end:END_MIN,color:colorFor('自由時間')});}
-  if(items.length===0){segs=[{label:'自由時間',action:'自由時間',start:START_MIN,end:END_MIN,color:colorFor('自由時間')}];}
-  return {segments:segs,warnings};
+  return {segments:items,warnings};
 }
 
 function segmentText(seg){return `${minToTime(seg.start)}〜${minToTime(seg.end)}　${seg.label}`}
+
+function drawCallouts(ctx,cx,cy,r,segments){
+  const entries = segments.map(seg=>{
+    const mid=((seg.start+seg.end)/2-START_MIN)/(END_MIN-START_MIN)*Math.PI*2 - Math.PI/2;
+    return {seg, mid, side:Math.cos(mid)>=0?'right':'left'};
+  });
+  const left = entries.filter(e=>e.side==='left').sort((a,b)=>Math.sin(a.mid)-Math.sin(b.mid));
+  const right = entries.filter(e=>e.side==='right').sort((a,b)=>Math.sin(a.mid)-Math.sin(b.mid));
+
+  function place(list, side){
+    const xText = side==='right' ? cx + r + 46 : cx - r - 46;
+    let lastY = 72;
+    list.forEach(item=>{
+      let y = cy + Math.sin(item.mid)*(r+14);
+      if(y < lastY) y = lastY;
+      if(y > 380) y = 380;
+      lastY = y + 24;
+      const x1 = cx + Math.cos(item.mid)*(r-10);
+      const y1 = cy + Math.sin(item.mid)*(r-10);
+      const x2 = cx + Math.cos(item.mid)*(r+16);
+      const y2 = cy + Math.sin(item.mid)*(r+16);
+      const x3 = side==='right' ? xText-8 : xText+8;
+      ctx.strokeStyle=item.seg.color; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.lineTo(x3,y); ctx.stroke();
+      ctx.fillStyle=item.seg.color; ctx.beginPath(); ctx.arc(x1,y1,4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#334155'; ctx.font='bold 12px sans-serif'; ctx.textAlign=side==='right'?'left':'right';
+      ctx.fillText(segmentText(item.seg), xText, y+4);
+    });
+  }
+  place(left,'left'); place(right,'right');
+}
 
 function drawDonut(canvas, name, date, segs){
   const ctx=canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
   const cssW = canvas.clientWidth || 360;
-  const cssH = 360;
+  const cssH = 430;
   canvas.width = cssW*dpr; canvas.height = cssH*dpr; ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,cssW,cssH);
-  const cx=cssW/2, cy=155, r=108, inner=54;
+  const cx=cssW/2, cy=180, r=92, line=40;
   ctx.fillStyle='#fff';ctx.fillRect(0,0,cssW,cssH);
-  ctx.fillStyle='#1f2740';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText(name, cx, 26);
-  ctx.fillStyle='#6b7796';ctx.font='13px sans-serif';ctx.fillText(date, cx, 46);
-  let total = END_MIN-START_MIN; let angle=-Math.PI/2;
+  ctx.fillStyle='#1f2740';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText(name, cx, 28);
+  ctx.fillStyle='#6b7796';ctx.font='13px sans-serif';ctx.fillText(date, cx, 48);
+
+  // base ring
+  ctx.strokeStyle='#edf2ff'; ctx.lineWidth=line; ctx.lineCap='butt';
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+
+  // hour ticks
+  for(let m=START_MIN; m<=END_MIN; m+=60){
+    const ang = ((m-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2;
+    const ix = cx + Math.cos(ang)*(r-line/2-6);
+    const iy = cy + Math.sin(ang)*(r-line/2-6);
+    const ox = cx + Math.cos(ang)*(r+line/2+6);
+    const oy = cy + Math.sin(ang)*(r+line/2+6);
+    ctx.strokeStyle='#d8e2ff'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(ix,iy); ctx.lineTo(ox,oy); ctx.stroke();
+  }
+
   segs.forEach(seg=>{
-    const portion=(seg.end-seg.start)/total; const a2=angle + portion*Math.PI*2;
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,a2); ctx.closePath();
-    ctx.fillStyle=seg.color; ctx.fill(); angle=a2;
+    const a1=((seg.start-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2;
+    const a2=((seg.end-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2;
+    ctx.strokeStyle=colorFor(seg.action); ctx.lineWidth=line; ctx.lineCap='butt';
+    ctx.beginPath(); ctx.arc(cx,cy,r,a1,a2); ctx.stroke();
   });
-  ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(cx,cy,inner,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation='source-over';
-  ctx.fillStyle='#334155'; ctx.font='bold 18px sans-serif'; ctx.fillText('1日の',cx,cy-6); ctx.font='bold 24px sans-serif'; ctx.fillText('スケジュール',cx,cy+24);
-  let legendY=280;
-  const shown = segs.slice(0,4);
-  shown.forEach((seg,i)=>{
-    const y=legendY+i*20; ctx.fillStyle=seg.color; ctx.beginPath(); ctx.arc(26,y-5,6,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#475569'; ctx.font='12px sans-serif'; ctx.textAlign='left';
-    ctx.fillText(segmentText(seg),40,y);
-  });
+
+  ctx.fillStyle='#334155';
+  ctx.font='bold 18px sans-serif';
+  if(segs.length){
+    ctx.fillText('5:00〜21:00',cx,cy-8);
+    ctx.font='bold 22px sans-serif';
+    ctx.fillText('予定',cx,cy+22);
+    drawCallouts(ctx,cx,cy,r+line/2,segs.slice(0,8));
+  }else{
+    ctx.fillText('予定を入れると',cx,cy-8);
+    ctx.font='bold 20px sans-serif';
+    ctx.fillText('ここに表示',cx,cy+22);
+  }
 }
 
 function kidCardHtml(kidIndex){
@@ -207,10 +248,10 @@ function kidCardHtml(kidIndex){
     </div>
     <div class="canvasWrap"><canvas class="chartCanvas" id="chart-${kidIndex}"></canvas></div>
     <div class="legend">
-      ${norm.segments.slice(0,8).map(seg=>`<div class="legendItem"><span class="sw" style="background:${seg.color}"></span><span>${esc(segmentText(seg))}</span></div>`).join('')}
+      ${norm.segments.length ? norm.segments.slice(0,8).map(seg=>`<div class="legendItem"><span class="sw" style="background:${colorFor(seg.action)}"></span><span>${esc(segmentText(seg))}</span></div>`).join('') : '<div class="legendItem"><span class="sw" style="background:#dbe3ff"></span><span>予定がまだありません</span></div>'}
     </div>
     <div class="warn ${norm.warnings.length?'show':''}" id="warn-${kidIndex}">${norm.warnings.join('<br>')}</div>
-    <div class="sectionTitle" style="margin-top:12px"><span>予定入力</span><span class="helper">空き時間は自由時間に自動変換</span></div>
+    <div class="sectionTitle" style="margin-top:12px"><span>予定入力</span><span class="helper">自由時間は表示しません</span></div>
     <div class="rows">
       <div class="rowHead"><div>項目</div><div>自由記載</div><div>開始</div><div>時間</div><div></div></div>
       ${kid.rows.map(r=>`
@@ -258,10 +299,10 @@ function renderTemplateSelect(){
 }
 
 function save(){
-  localStorage.setItem('kids_schedule_fun_v2', JSON.stringify(state));
+  localStorage.setItem('kids_schedule_fun_v3', JSON.stringify(state));
 }
 function load(){
-  try{ const raw=localStorage.getItem('kids_schedule_fun_v2'); if(raw){ state=JSON.parse(raw); }}catch(e){}
+  try{ const raw=localStorage.getItem('kids_schedule_fun_v3') || localStorage.getItem('kids_schedule_fun_v2'); if(raw){ state=JSON.parse(raw); }}catch(e){}
   state.names = state.names || ['ひろと','ゆいな'];
   state.days = state.days || {}; state.templates = state.templates || []; state.activeDate = state.activeDate || today();
 }
@@ -293,31 +334,28 @@ function updateKidName(){ state.names[0]=$('nameA').value||'子どもA'; state.n
 function updateDate(v){ state.activeDate=v; ensureDay(v); render(); }
 
 function drawExportPoster(){
-  const W=1600,H=1220; const canvas=document.createElement('canvas'); canvas.width=W; canvas.height=H; const ctx=canvas.getContext('2d');
+  const W=1600,H=1320; const canvas=document.createElement('canvas'); canvas.width=W; canvas.height=H; const ctx=canvas.getContext('2d');
   ctx.fillStyle='#f4f7ff'; ctx.fillRect(0,0,W,H);
   roundRect(ctx,28,28,W-56,H-56,30,'#ffffff');
   ctx.fillStyle='#5b6cff'; ctx.font='bold 52px sans-serif'; ctx.fillText('🌈 わくわく こどもスケジュール',56,96);
   ctx.fillStyle='#64748b'; ctx.font='26px sans-serif'; ctx.fillText(state.activeDate+'　5:00〜21:00',58,134);
-  drawPosterKid(ctx, 0, 56, 170, 720, 980);
-  drawPosterKid(ctx, 1, 824, 170, 720, 980);
+  drawPosterKid(ctx, 0, 56, 170, 720, 1080);
+  drawPosterKid(ctx, 1, 824, 170, 720, 1080);
   return canvas.toDataURL('image/jpeg',0.94);
 }
 function drawPosterKid(ctx, kidIndex, x, y, w, h){
-  const name = state.names[kidIndex]; const norm = normalizeRows(currentDay().kids[kidIndex].rows).segments;
+  const name = state.names[kidIndex]; const segs = normalizeRows(currentDay().kids[kidIndex].rows).segments;
   roundRect(ctx,x,y,w,h,24,'#fafcff');
   ctx.fillStyle=kidIndex===0?'#4f46e5':'#ec4899'; ctx.fillRect(x,y,w,14);
   ctx.fillStyle='#1f2740'; ctx.font='bold 40px sans-serif'; ctx.fillText((kidIndex===0?'🚀 ':'🌟 ')+name,x+22,y+56);
-  // donut
-  const cx=x+w/2, cy=y+270, r=150, inner=74;
-  let angle=-Math.PI/2,total=END_MIN-START_MIN;
-  norm.forEach(seg=>{ const portion=(seg.end-seg.start)/total; const a2=angle+portion*Math.PI*2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,a2); ctx.closePath(); ctx.fillStyle=seg.color; ctx.fill(); angle=a2;});
-  ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(cx,cy,inner,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation='source-over';
-  ctx.fillStyle='#334155'; ctx.font='bold 30px sans-serif'; ctx.textAlign='center'; ctx.fillText('1日の予定',cx,cy+10); ctx.textAlign='left';
-  // list
-  let yy=y+485;
-  norm.slice(0,12).forEach(seg=>{ roundRect(ctx,x+24,yy,w-48,42,12,'#fff'); ctx.fillStyle=seg.color; ctx.beginPath(); ctx.arc(x+44,yy+21,8,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#475569'; ctx.font='22px sans-serif'; ctx.fillText(segmentText(seg),x+62,yy+28); yy+=50; });
+  const cx=x+w/2, cy=y+255, r=150, line=54;
+  ctx.strokeStyle='#edf2ff'; ctx.lineWidth=line; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  segs.forEach(seg=>{ const a1=((seg.start-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2; const a2=((seg.end-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2; ctx.strokeStyle=colorFor(seg.action); ctx.lineWidth=line; ctx.beginPath(); ctx.arc(cx,cy,r,a1,a2); ctx.stroke(); });
+  ctx.fillStyle='#334155'; ctx.font='bold 28px sans-serif'; ctx.textAlign='center'; ctx.fillText('5:00〜21:00',cx,cy-10); ctx.font='bold 34px sans-serif'; ctx.fillText('予定',cx,cy+28); ctx.textAlign='left';
+  let yy=y+490;
+  if(!segs.length){ roundRect(ctx,x+24,yy,w-48,50,12,'#fff'); ctx.fillStyle='#64748b'; ctx.font='22px sans-serif'; ctx.fillText('予定がまだありません',x+38,yy+33); return; }
+  segs.slice(0,14).forEach(seg=>{ roundRect(ctx,x+24,yy,w-48,44,12,'#fff'); ctx.fillStyle=colorFor(seg.action); ctx.beginPath(); ctx.arc(x+44,yy+22,8,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#475569'; ctx.font='22px sans-serif'; ctx.fillText(segmentText(seg),x+62,yy+29); yy+=50; });
 }
-function roundRect(ctx,x,y,w,h,r,fill){ ctx.beginPath(); if(ctx.roundRect){ ctx.roundRect(x,y,w,h,r);} else { ctx.rect(x,y,w,h);} ctx.fillStyle=fill; ctx.fill(); }
 
 // events
 $('dayDate').addEventListener('change',e=>updateDate(e.target.value));
@@ -328,9 +366,9 @@ $('renderBoth').addEventListener('click',render); $('makeJpg').addEventListener(
 $('dayTabs').addEventListener('click',e=>{ const btn=e.target.closest('button[data-date]'); if(btn){ state.activeDate=btn.getAttribute('data-date'); render(); }});
 $('kidsWrap').addEventListener('click',e=>{
   const kidBox=e.target.closest('.kid'); if(!kidBox) return; const kidIndex=Number(kidBox.getAttribute('data-kid')); const rows=currentDay().kids[kidIndex].rows;
-  if(e.target.classList.contains('addRow')){ addRow(kidIndex); }
-  if(e.target.classList.contains('sortRows')){ sortRows(kidIndex); }
-  if(e.target.classList.contains('clearRows')){ clearRows(kidIndex); }
+  if(e.target.classList.contains('addRow')) addRow(kidIndex);
+  if(e.target.classList.contains('sortRows')) sortRows(kidIndex);
+  if(e.target.classList.contains('clearRows')) clearRows(kidIndex);
   if(e.target.classList.contains('deleteRow')){ const row=e.target.closest('.row'); const id=row.getAttribute('data-row'); currentDay().kids[kidIndex].rows = rows.filter(r=>r.id!==id); render(); }
 });
 $('kidsWrap').addEventListener('change',e=>{
@@ -347,8 +385,8 @@ $('kidsWrap').addEventListener('input',e=>{
 });
 
 load();
-$('dayDate').value = state.activeDate || today();
 if(!state.activeDate) state.activeDate=today();
+$('dayDate').value = state.activeDate;
 ensureDay(state.activeDate);
 render();
 })();
