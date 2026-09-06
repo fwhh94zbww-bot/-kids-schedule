@@ -2,426 +2,448 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>わくわく こどもスケジュール</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="よていメーカー">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>子ども予定メーカー</title>
 <style>
 :root{
-  --bg:#f6f8ff;--card:#fff;--ink:#1f2740;--muted:#6b7796;--line:#dbe3ff;
-  --pink:#ff7eb6;--sky:#6cc8ff;--mint:#6ee7b7;--yellow:#ffd166;--orange:#ff9f43;--violet:#8b7cf6;
-  --shadow:0 10px 28px rgba(73,92,168,.12);
+  --bg:#eaf1fb;--card:#fff;--ink:#182338;--muted:#6b7688;--line:#dbe3f0;
+  --a:#2563eb;--asoft:#e8f0ff;--b:#ea580c;--bsoft:#fff2e6;
+  --study:#7c3aed;--studysoft:#efe9ff;--play:#0891b2;--playsoft:#e0f7fb;
+  --life:#d97706;--lifesoft:#fff2df;--other:#16a34a;--othersoft:#e6f7ec;
+  --shadow:0 12px 30px rgba(20,40,80,.10);--r:20px
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:linear-gradient(180deg,#eef3ff 0%,#f9fbff 100%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif}
 button,input,select{font:inherit}
-button{border:0;border-radius:14px;padding:12px 14px;font-weight:800;cursor:pointer}
-.app{max-width:1100px;margin:auto;padding:12px 12px 96px}
-.hero{background:linear-gradient(135deg,#7c8cff,#6cc8ff,#8b7cf6);color:#fff;border-radius:24px;padding:18px 16px;box-shadow:var(--shadow)}
-.hero h1{margin:0;font-size:24px}
-.hero p{margin:8px 0 0;font-size:13px;opacity:.96;line-height:1.5}
-.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:14px;margin-top:12px}
-.grid2,.grid3,.grid4{display:grid;gap:10px}
-.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}.grid4{grid-template-columns:repeat(4,1fr)}
-label{display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px}
-input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
-.sectionTitle{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:900;margin:0 0 10px}
-.primary{background:#5664ff;color:#fff}.secondary{background:#e9eeff;color:#3852c8}.green{background:#dcfce7;color:#166534}.danger{background:#fee2e2;color:#b91c1c}.orange{background:#fff1db;color:#b45309}
-.tabs{display:flex;gap:8px;overflow:auto;padding-bottom:2px}.tabs button{white-space:nowrap;background:#eef2ff;color:#4758c4;padding:10px 12px}.tabs .active{background:#5664ff;color:#fff}
-.kids{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.kid{border-top:8px solid var(--sky)}.kid.yuina{border-top-color:var(--pink)}
-.kidHeader{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-.kidHeader h2{font-size:22px;margin:0}.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;background:#eef2ff;color:#4154d1}
-.kid.yuina .badge{background:#ffe8f2;color:#d1437c}
-.canvasWrap{background:radial-gradient(circle at 50% 0%,#ffffff 0%,#f7f9ff 100%);border:1px solid var(--line);border-radius:18px;padding:8px;overflow:hidden}
-.chartCanvas{width:100%;height:auto;display:block}
-.helper{font-size:12px;color:var(--muted);line-height:1.5}
-.rows{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:8px}
-.rowHead,.row{display:grid;grid-template-columns:1.15fr 1.1fr .8fr .8fr 42px;gap:6px;align-items:center;padding:8px}
-.rowHead{background:#f6f8ff;color:var(--muted);font-size:11px;font-weight:800}
-.row{border-top:1px solid #eef2ff;background:#fff}
-.row input,.row select{padding:8px 9px;font-size:13px}
-.row button{padding:8px 0;border-radius:10px;background:#fee2e2;color:#b91c1c}
-.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.legendItem{display:flex;align-items:center;gap:8px;background:#fafbff;border:1px solid #eef2ff;border-radius:12px;padding:8px 10px;font-size:13px}
-.sw{width:14px;height:14px;border-radius:50%}
-.warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:10px;border-radius:14px;font-size:12px;line-height:1.5;margin-top:8px;display:none}
-.warn.show{display:block}
-.preview{display:none}.preview.show{display:block}
-.preview img{width:100%;border-radius:18px;border:1px solid var(--line)}
-.footer{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.95);backdrop-filter:blur(14px);border-top:1px solid #dde6ff;padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:20}
-.footerInner{max-width:1100px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.note{font-size:12px;color:var(--muted);line-height:1.5}
-@media (max-width:860px){.kids{grid-template-columns:1fr}.grid4,.grid3,.grid2{grid-template-columns:1fr 1fr}.rowHead,.row{grid-template-columns:1fr 1fr .9fr .9fr 40px}}
-@media (max-width:520px){.grid4,.grid3,.grid2,.legend{grid-template-columns:1fr}.hero h1{font-size:21px}.rowHead,.row{grid-template-columns:1fr 1fr .9fr .9fr 36px}.app{padding-bottom:112px}}
+button{border:0;border-radius:14px;padding:12px 14px;font-weight:800;cursor:pointer;color:var(--ink)}
+.app{max-width:1040px;margin:auto;padding:12px 12px 116px}
+.hero h1{font-size:24px;margin:6px 0 2px}
+.hero p{font-size:13px;color:var(--muted);margin:2px 0 8px}
+.note{background:#e8fbef;border:1px solid #bff0cf;color:#15703a;padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;line-height:1.5}
+.install{display:none;background:#eaf2ff;border:1px solid #c3d9ff;color:#1d499a;padding:9px 12px;border-radius:12px;font-size:12px;line-height:1.5;margin-top:8px;font-weight:700}
+.install.show{display:block}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:15px;margin:12px 0}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.head h2{font-size:16px;margin:0}
+.reward{border:3px solid #ffd39b;background:linear-gradient(150deg,#fff6ea,#fff,#eef4ff)}
+.reward h2{font-size:22px;margin:0}
+.rrow{display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:center;margin-top:8px}
+.rnum{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:15px;font-weight:900}
+.rtxt{font-size:15px;font-weight:800;line-height:1.4}
+.seg{display:grid;gap:8px}
+.seg.two{grid-template-columns:1fr 1fr}
+.seg.three{grid-template-columns:1fr 1fr 1fr}
+.seg button{background:#eef2f9;color:#41506a;border:2px solid transparent;padding:14px 8px;font-size:15px;line-height:1.3}
+.seg button.on{background:var(--a);color:#fff;border-color:var(--a)}
+.seg.school button.on.sc{background:var(--a);border-color:var(--a)}
+.seg.school button.on.no{background:var(--b);border-color:var(--b)}
+label{display:block;font-size:12px;font-weight:800;color:#54627c;margin:2px 0 4px}
+input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mt{margin-top:10px}
+.primary{background:var(--a);color:#fff}
+.warm{background:var(--b);color:#fff}
+.soft{background:#eef2f9;color:#41506a}
+.full{width:100%}
+.big{padding:15px;font-size:17px}
+.tabs{display:flex;gap:7px;overflow:auto;padding-bottom:3px;margin-top:10px}
+.tabs button{white-space:nowrap;background:#eef2f9;color:#41506a;padding:9px 12px}
+.tabs button.on{background:var(--a);color:#fff}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kid{border-top:8px solid var(--a)}
+.kid.bb{border-color:var(--b)}
+.kidhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.kidname{font-size:22px;font-weight:900}
+.badge{padding:5px 11px;border-radius:999px;background:var(--asoft);color:var(--a);font-size:12px;font-weight:900}
+.kid.bb .badge{background:var(--bsoft);color:var(--b)}
+.mission{background:linear-gradient(135deg,#f3f0ff,#fff);border:2px solid #ddd4ff;border-radius:16px;padding:12px;margin-top:12px}
+.mission .lab{font-size:14px;font-weight:900;color:var(--study);margin-bottom:8px}
+.sentence{margin-top:10px;background:#fff;border:1px dashed #cbb9ff;border-radius:12px;padding:10px;font-size:15px;font-weight:900;color:#4c1d95;line-height:1.5;text-align:center}
+.plan{margin-top:12px}
+details.tune{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:2px 12px;background:#fbfcfe}
+details.tune>summary{cursor:pointer;font-weight:800;color:#54627c;padding:10px 0;font-size:13px;list-style:none}
+details.tune>summary::-webkit-details-marker{display:none}
+details.tune>summary::before{content:"▸ ";color:var(--a)}
+details.tune[open]>summary::before{content:"▾ "}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.quick{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.quick button{padding:9px 11px;font-size:12px}
+.schedule{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:8px}
+.shead,.srow{display:grid;grid-template-columns:76px 1fr 86px 38px;gap:6px;align-items:center}
+.shead{padding:8px;background:#f6f8fc;color:#64748b;font-size:11px;font-weight:800}
+.srow{padding:7px;border-top:1px solid #eef2f8}
+.srow select{padding:8px;font-size:13px}
+.srow button{padding:7px 0}
+.danger{background:#ffe6e6;color:#c22}
+.preview{text-align:center}
+.preview img{width:100%;border-radius:14px;border:1px solid var(--line);background:#fff}
+.mini{font-size:12px;color:var(--muted);line-height:1.5}
+.footer{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid #dbe3f0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:20}
+.footin{max-width:1040px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.modal{position:fixed;inset:0;background:rgba(15,25,45,.5);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
+.modal.show{display:flex}
+.mcard{width:min(520px,100%);background:#fff;border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+.mcard h2{margin:0 0 6px}
+.mcard p{font-size:13px;color:var(--muted);line-height:1.55}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 16px;border-radius:999px;font-size:13px;font-weight:800;z-index:80;opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1}
+@media(max-width:760px){.pair{grid-template-columns:1fr}}
+@media(max-width:520px){.grid3{grid-template-columns:1fr}.shead,.srow{grid-template-columns:70px 1fr 78px 36px}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="hero">
-    <h1>🌈 わくわく こどもスケジュール</h1>
-    <p>円グラフで1日の流れがひと目で見えるよ。項目・スタート時間・所要時間を入れるだけ。朝のスタートは5:00、円グラフの中にも「何時に何をするか」が表示されます。</p>
+    <h1>⏰ 子ども予定メーカー</h1>
+    <p>じぶんで めあてを決めて、けいかくを作ろう。できたら花まる💮</p>
+  </div>
+  <div class="note">🔒 名前・約束・予定・テンプレはこのiPhoneの中だけに保存します。公開ページに個人情報は送りません。</div>
+  <div id="installHint" class="install">📱 Safariの共有ボタン →「ホーム画面に追加」で、次からアプリのように1タップで開けます。</div>
+
+  <div class="card reward">
+    <div class="head"><h2>📢 <span id="titleView">おうちの約束</span></h2><button id="openSettings" class="soft">⚙️ 設定</button></div>
+    <div class="rrow"><div class="rnum" style="background:var(--b)">1</div><div class="rtxt">じぶんで決めた時間に、決めたところまで宿題をやる！</div></div>
+    <div class="rrow"><div class="rnum" style="background:#dc2626">2</div><div class="rtxt">できたら 花まる💮 ＆ ゲームタイム🎮</div></div>
+    <div class="rrow"><div class="rnum" style="background:#0284c7">3</div><div class="rtxt" id="bonusView">勉強30分ごとに ゲーム＋15分！</div></div>
   </div>
 
   <div class="card">
-    <div class="sectionTitle"><span>基本設定</span><span class="note">端末内だけ保存</span></div>
-    <div class="grid4">
-      <div><label>日付</label><input id="dayDate" type="date"></div>
-      <div><label>子どもAの名前</label><input id="nameA" value="ひろと"></div>
-      <div><label>子どもBの名前</label><input id="nameB" value="ゆいな"></div>
-      <div><label>保存済みテンプレート</label><select id="templateSelect"><option value="">テンプレートを選ぶ</option></select></div>
+    <div class="head"><h2>① 作る日をえらぶ</h2></div>
+    <div class="seg two"><button id="modeSingle" class="on">📅 単日</button><button id="modeWeekend">🗓️ 週末（金土日）</button></div>
+
+    <div id="singleBox" class="mt">
+      <label>日付</label><input id="singleDate" type="date">
+      <div class="mt"></div>
+      <label>この日は？</label>
+      <div class="seg two school">
+        <button id="scOn" class="on sc">🏫 学校あり<br><span class="mini">帰宅からスタート</span></button>
+        <button id="scOff" class="no">🏠 学校なし<br><span class="mini">起きてからスタート</span></button>
+      </div>
+      <button id="makeSingle" class="primary full big mt">この日を2人分つくる</button>
     </div>
-    <div class="grid4" style="margin-top:10px">
-      <button id="saveTemplate" class="orange">今の2人分を保存</button>
-      <button id="applyTemplate" class="secondary">テンプレート適用</button>
-      <button id="addWeekend" class="secondary">金・土・日を追加</button>
-      <button id="clearDay" class="danger">この日をクリア</button>
+
+    <div id="weekendBox" class="mt" style="display:none">
+      <div class="row2"><div><label>金曜日</label><input id="fridayDate" type="date"></div>
+      <div><label>作る日</label><select id="weekendRange"><option value="3">金・土・日</option><option value="2">土・日</option></select></div></div>
+      <button id="makeWeekend" class="warm full big mt">週末を2人分まとめてつくる</button>
     </div>
-    <div class="tabs" id="dayTabs" style="margin-top:10px"></div>
+
+    <div id="dateTabs" class="tabs"></div>
   </div>
 
-  <div class="kids" id="kidsWrap"></div>
+  <div id="kids" class="pair"></div>
 
-  <div class="card preview" id="jpgPreviewWrap">
-    <div class="sectionTitle"><span>📸 JPGプレビュー</span><span class="note">長押し保存OK</span></div>
-    <img id="jpgPreview" alt="JPG preview">
+  <div class="card preview">
+    <div class="head"><h2>📸 かんせいJPG</h2></div>
+    <div class="mini">設定を変えると自動で作りなおします。iPhoneは画像を長押し →「写真に保存」。</div>
+    <img id="jpg" class="mt" alt="スケジュールJPG">
   </div>
+
+  <details class="card">
+    <summary style="font-weight:800;cursor:pointer">💾 テンプレート（よく使う予定を保存）</summary>
+    <div class="row2 mt"><div><label>標準から</label><select id="baseTemplate"><option value="weekday">平日ひな形</option><option value="weekend">休日ひな形</option></select></div>
+    <div><label>&nbsp;</label><button id="applyBase" class="soft full">2人に入れる</button></div></div>
+    <div class="row2 mt"><div><label>保存名</label><input id="templateName" placeholder="例：平日いつもの"></div>
+    <div><label>&nbsp;</label><button id="saveTemplate" class="warm full">今の2人分を保存</button></div></div>
+    <div class="row2 mt"><div><label>保存済み</label><select id="savedTemplate"><option value="">保存済みテンプレート</option></select></div>
+    <div><label>&nbsp;</label><button id="applySaved" class="primary full">よびだす</button></div></div>
+  </details>
 </div>
 
-<div class="footer">
-  <div class="footerInner">
-    <button id="renderBoth" class="secondary">✨ 2人を更新</button>
-    <button id="makeJpg" class="primary">📸 2人を1枚JPG</button>
+<div class="footer"><div class="footin">
+  <button id="autoBoth" class="soft">✨ 2人分けいかくを作る</button>
+  <button id="refreshJpg" class="primary">📸 JPGを作る</button>
+</div></div>
+
+<div id="settingsModal" class="modal">
+  <div class="mcard">
+    <h2>⚙️ このiPhoneだけの設定</h2>
+    <p>入力した内容はこの端末のSafari内にだけ保存します。</p>
+    <div class="row2 mt">
+      <div><label>子どもAの名前</label><input id="nameA" placeholder="子どもA"></div>
+      <div><label>子どもBの名前</label><input id="nameB" placeholder="子どもB"></div>
+      <div><label>約束タイトル</label><select id="promiseTitle"><option>おうちの約束</option><option>今日の約束</option><option>今週のチャレンジ</option><option>宿題チャレンジ</option></select></div>
+      <div><label>勉強30分ごとに増えるゲーム</label><select id="bonusRatio"><option value="0">増やさない</option><option value="15">15分</option><option value="30">30分</option></select></div>
+    </div>
+    <div class="row2 mt"><button id="settingsCancel" class="soft">閉じる</button><button id="settingsSave" class="primary">保存</button></div>
   </div>
 </div>
+<div id="toast" class="toast"></div>
 
 <script>
 (function(){
 'use strict';
-const START_MIN = 5*60;
-const END_MIN = 21*60;
-const ACTIONS = ['起床','学校','朝食','宿題','勉強','ゲーム','遊ぶ','友達と遊ぶ','散歩','お出かけ','昼食','おやつ','夕食','お風呂','明日の準備','歯みがき','読書','お手伝い','習い事','就寝','自由記載'];
-const COLORS = {
-  '起床':'#6cc8ff','学校':'#8b7cf6','朝食':'#ffd166','宿題':'#a78bfa','勉強':'#7c8cff','ゲーム':'#34d399',
-  '遊ぶ':'#ff9f43','友達と遊ぶ':'#ff7eb6','散歩':'#5eead4','お出かけ':'#f97316','昼食':'#fbbf24','おやつ':'#f472b6',
-  '夕食':'#fb923c','お風呂':'#60a5fa','明日の準備':'#22c55e','歯みがき':'#93c5fd','読書':'#c084fc','お手伝い':'#4ade80',
-  '習い事':'#818cf8','就寝':'#64748b','自由記載':'#94a3b8'
-};
-let state = { names:['ひろと','ゆいな'], activeDate:'', days:{}, templates:[] };
+var STORE='kids_schedule_private_v2', OLD='kids_schedule_private_v1';
+var ACTIONS=['起床','朝食','宿題','音読','勉強','ゲーム','遊ぶ','友達と遊ぶ','散歩','昼食','おやつ','夕食','お風呂','明日の準備','歯みがき','読書','お手伝い','習い事','自由時間','自由記載'];
+var EMO={起床:'🌅',朝食:'🍞',宿題:'✏️',音読:'🗣️',勉強:'📚',ゲーム:'🎮',遊ぶ:'⚽',友達と遊ぶ:'👫',散歩:'🚶',昼食:'🍙',おやつ:'🍪',夕食:'🍚',お風呂:'🛁',明日の準備:'🎒',歯みがき:'🦷',読書:'📖',お手伝い:'🧹',習い事:'🎹',自由時間:'✨',自由記載:'📝'};
+var GOALS=[['全部','ぜんぶ'],['半分','はんぶん'],['音読以外','音読いがい']];
+var openTune={a:false,b:false};
 
-function $(id){return document.getElementById(id)}
+var S={mode:'single',school:true,active:'',days:{},templates:[],prefs:{nameA:'子どもA',nameB:'子どもB',title:'おうちの約束',bonus:15}};
+
+function E(id){return document.getElementById(id)}
+function pad(n){return n<10?'0'+n:String(n)}
+function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function today(){return iso(new Date())}
+function addDays(ds,n){var d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return iso(d)}
+function nextFri(){var d=new Date(),x=(5-d.getDay()+7)%7;if(x===0)x=7;d.setDate(d.getDate()+x);return iso(d)}
+function tmin(t){var p=t.split(':');return Number(p[0])*60+Number(p[1])}
+function mtime(m){m=Math.max(0,Math.min(1439,m));return pad(Math.floor(m/60))+':'+pad(m%60)}
+function addMin(t,m){return mtime(tmin(t)+m)}
 function uid(){return Math.random().toString(36).slice(2,9)}
-function pad(n){return String(n).padStart(2,'0')}
-function today(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
-function addDays(ds,n){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
-function nextFriday(){const d=new Date();const diff=((5-d.getDay())+7)%7||7;d.setDate(d.getDate()+diff);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
-function timeToMin(t){const p=t.split(':');return Number(p[0])*60+Number(p[1])}
-function minToTime(m){return pad(Math.floor(m/60))+':'+pad(m%60)}
-function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
-function clone(x){return JSON.parse(JSON.stringify(x))}
-function times(){const out=[];for(let m=START_MIN;m<=END_MIN;m+=30) out.push(minToTime(m));return out}
-function durationOptions(current){const vals=[0.5,1,1.5,2,2.5,3,3.5,4];return vals.map(v=>`<option value="${v}" ${String(v)===String(current)?'selected':''}>${v===0.5?'30分':v+'時間'}</option>`).join('')}
-function timeOptions(current){return times().map(t=>`<option ${t===current?'selected':''}>${t}</option>`).join('')}
-function actionOptions(current){return ACTIONS.map(a=>`<option ${a===current?'selected':''}>${a}</option>`).join('')}
-function colorFor(label){return COLORS[label] || '#94a3b8'}
-function roundRect(ctx,x,y,w,h,r,fill){ctx.beginPath(); if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);} else {ctx.rect(x,y,w,h);} ctx.fillStyle=fill; ctx.fill();}
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function times(a,b,step){var out=[],m;for(m=tmin(a);m<=tmin(b);m+=step)out.push(mtime(m));return out}
+function row(start,action,dur){return{id:uid(),start:start,action:action,dur:String(dur)}}
+function cat(a){if(a==='宿題'||a==='音読'||a==='勉強'||a==='読書'||a==='習い事')return'study';
+  if(a==='ゲーム'||a==='遊ぶ'||a==='友達と遊ぶ'||a==='自由時間'||a==='散歩')return'play';
+  if(a==='お手伝い'||a==='明日の準備'||a==='自由記載')return'other';return'life'}
 
-function defaultRows(){
-  return [
-    {id:uid(), action:'起床', custom:'', start:'07:00', duration:'0.5'},
-    {id:uid(), action:'朝食', custom:'', start:'07:30', duration:'0.5'},
-    {id:uid(), action:'宿題', custom:'', start:'16:00', duration:'1'},
-    {id:uid(), action:'ゲーム', custom:'', start:'17:00', duration:'0.5'},
-    {id:uid(), action:'夕食', custom:'', start:'18:00', duration:'0.5'},
-    {id:uid(), action:'お風呂', custom:'', start:'19:00', duration:'0.5'},
-    {id:uid(), action:'就寝', custom:'', start:'21:00', duration:'0.5'}
-  ];
-}
-function ensureDay(date){
-  if(!state.days[date]) state.days[date]={kids:[{rows:defaultRows()},{rows:defaultRows()}]};
-  return state.days[date];
-}
-function currentDay(){return ensureDay(state.activeDate)}
+function kid(school){return{school:school,start:school?'15:30':'07:00',hwGoal:'全部',hwTime:school?'19:00':'11:00',homework:1,study:.5,game:.5,dinner:'18:00',bath:'19:00',schedule:[]}}
+function normKid(k){k=k||{};var sc=!!k.school;
+  return{school:sc,start:k.start||(sc?'15:30':'07:00'),
+    hwGoal:mapGoal(k.hwGoal||k.goal),hwTime:k.hwTime||k.full||(sc?'19:00':'11:00'),
+    homework:k.homework==null?1:Number(k.homework),study:k.study==null?.5:Number(k.study),
+    game:k.game==null?.5:Number(k.game),dinner:k.dinner||'18:00',bath:k.bath||'19:00',
+    schedule:(k.schedule||[]).map(function(r){return row(r.start,r.action,r.dur)})}}
+function mapGoal(g){if(!g)return'全部';if(g==='半分'||g==='半分まで')return'半分';if(g.indexOf('音読')>=0)return'音読以外';if(g==='全部')return'全部';return'全部'}
+function ensure(date,school){if(!S.days[date])S.days[date]={school:school,a:kid(school),b:kid(school)};return S.days[date]}
 
-function normalizeRows(rows){
-  const items = rows.map(r=>({
-    id:r.id,
-    action:r.action,
-    label:(r.custom||'').trim() || r.action,
-    start:Math.max(START_MIN, Math.min(END_MIN, timeToMin(r.start))),
-    end:Math.max(START_MIN, Math.min(END_MIN, timeToMin(r.start) + Math.round(Number(r.duration)*60)))
-  })).filter(r=>r.end>r.start).sort((a,b)=>a.start-b.start);
-
-  let warnings=[];
-  for(let i=1;i<items.length;i++){
-    if(items[i].start < items[i-1].end){warnings.push(`${minToTime(items[i].start)} の「${items[i].label}」が前の予定と重なっています。`)}
-  }
-  return {segments:items,warnings};
-}
-
-function segmentText(seg){return `${minToTime(seg.start)}〜${minToTime(seg.end)}　${seg.label}`}
-
-function drawCallouts(ctx,cx,cy,r,segments){
-  const entries = segments.map(seg=>{
-    const mid=((seg.start+seg.end)/2-START_MIN)/(END_MIN-START_MIN)*Math.PI*2 - Math.PI/2;
-    return {seg, mid, side:Math.cos(mid)>=0?'right':'left'};
-  });
-  const left = entries.filter(e=>e.side==='left').sort((a,b)=>Math.sin(a.mid)-Math.sin(b.mid));
-  const right = entries.filter(e=>e.side==='right').sort((a,b)=>Math.sin(a.mid)-Math.sin(b.mid));
-
-  function place(list, side){
-    const xText = side==='right' ? cx + r + 46 : cx - r - 46;
-    let lastY = 72;
-    list.forEach(item=>{
-      let y = cy + Math.sin(item.mid)*(r+14);
-      if(y < lastY) y = lastY;
-      if(y > 380) y = 380;
-      lastY = y + 24;
-      const x1 = cx + Math.cos(item.mid)*(r-10);
-      const y1 = cy + Math.sin(item.mid)*(r-10);
-      const x2 = cx + Math.cos(item.mid)*(r+16);
-      const y2 = cy + Math.sin(item.mid)*(r+16);
-      const x3 = side==='right' ? xText-8 : xText+8;
-      ctx.strokeStyle=item.seg.color; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.lineTo(x3,y); ctx.stroke();
-      ctx.fillStyle=item.seg.color; ctx.beginPath(); ctx.arc(x1,y1,4,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#334155'; ctx.font='bold 12px sans-serif'; ctx.textAlign=side==='right'?'left':'right';
-      ctx.fillText(segmentText(item.seg), xText, y+4);
-    });
-  }
-  place(left,'left'); place(right,'right');
-}
-
-function drawDonut(canvas, name, date, segs){
-  const ctx=canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  const cssW = canvas.clientWidth || 360;
-  const cssH = 430;
-  canvas.width = cssW*dpr; canvas.height = cssH*dpr; ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,cssW,cssH);
-  const cx=cssW/2, cy=180, r=92, line=40;
-  ctx.fillStyle='#fff';ctx.fillRect(0,0,cssW,cssH);
-  ctx.fillStyle='#1f2740';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText(name, cx, 28);
-  ctx.fillStyle='#6b7796';ctx.font='13px sans-serif';ctx.fillText(date, cx, 48);
-
-  // base ring
-  ctx.strokeStyle='#edf2ff'; ctx.lineWidth=line; ctx.lineCap='butt';
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
-
-  // hour ticks
-  for(let m=START_MIN; m<=END_MIN; m+=60){
-    const ang = ((m-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2;
-    const ix = cx + Math.cos(ang)*(r-line/2-6);
-    const iy = cy + Math.sin(ang)*(r-line/2-6);
-    const ox = cx + Math.cos(ang)*(r+line/2+6);
-    const oy = cy + Math.sin(ang)*(r+line/2+6);
-    ctx.strokeStyle='#d8e2ff'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(ix,iy); ctx.lineTo(ox,oy); ctx.stroke();
-  }
-
-  segs.forEach(seg=>{
-    const a1=((seg.start-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2;
-    const a2=((seg.end-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2;
-    ctx.strokeStyle=colorFor(seg.action); ctx.lineWidth=line; ctx.lineCap='butt';
-    ctx.beginPath(); ctx.arc(cx,cy,r,a1,a2); ctx.stroke();
-  });
-
-  ctx.fillStyle='#334155';
-  ctx.font='bold 18px sans-serif';
-  if(segs.length){
-    ctx.fillText('5:00〜21:00',cx,cy-8);
-    ctx.font='bold 22px sans-serif';
-    ctx.fillText('予定',cx,cy+22);
-    drawCallouts(ctx,cx,cy,r+line/2,segs.slice(0,8));
-  }else{
-    ctx.fillText('予定を入れると',cx,cy-8);
-    ctx.font='bold 20px sans-serif';
-    ctx.fillText('ここに表示',cx,cy+22);
-  }
-}
-
-function kidCardHtml(kidIndex){
-  const day=currentDay(); const kid=day.kids[kidIndex];
-  const name = state.names[kidIndex]; const norm=normalizeRows(kid.rows);
-  return `
-  <div class="card kid ${kidIndex===1?'yuina':''}" data-kid="${kidIndex}">
-    <div class="kidHeader">
-      <h2>${kidIndex===0?'🚀':'🌟'} ${esc(name)}</h2>
-      <span class="badge">5:00〜21:00</span>
-    </div>
-    <div class="canvasWrap"><canvas class="chartCanvas" id="chart-${kidIndex}"></canvas></div>
-    <div class="legend" id="legend-${kidIndex}">
-      ${norm.segments.length ? norm.segments.slice(0,8).map(seg=>`<div class="legendItem"><span class="sw" style="background:${colorFor(seg.action)}"></span><span>${esc(segmentText(seg))}</span></div>`).join('') : '<div class="legendItem"><span class="sw" style="background:#dbe3ff"></span><span>予定がまだありません</span></div>'}
-    </div>
-    <div class="warn ${norm.warnings.length?'show':''}" id="warn-${kidIndex}">${norm.warnings.join('<br>')}</div>
-    <div class="sectionTitle" style="margin-top:12px"><span>予定入力</span><span class="helper">入力しても画面位置はそのまま</span></div>
-    <div class="rows">
-      <div class="rowHead"><div>項目</div><div>自由記載</div><div>開始</div><div>時間</div><div></div></div>
-      ${kid.rows.map(r=>`
-        <div class="row" data-row="${r.id}">
-          <select class="field-action">${actionOptions(r.action)}</select>
-          <input class="field-custom" value="${esc(r.custom)}" placeholder="未入力なら項目名を使用">
-          <select class="field-start">${timeOptions(r.start)}</select>
-          <select class="field-duration">${durationOptions(r.duration)}</select>
-          <button class="deleteRow">×</button>
-        </div>
-      `).join('')}
-    </div>
-    <div class="grid4" style="margin-top:10px">
-      <button class="green addRow">＋予定を追加</button>
-      <button class="secondary sortRows">時間順に並べる</button>
-      <button class="orange copyOther">${kidIndex===0 ? esc(state.names[1]) : esc(state.names[0])}と同じ予定にする</button>
-      <button class="danger clearRows">この子をクリア</button>
-    </div>
-  </div>`;
-}
-
-function renderTabs(){
-  const dates=Object.keys(state.days).sort();
-  $('dayTabs').innerHTML = dates.map(d=>`<button class="${d===state.activeDate?'active':''}" data-date="${d}">${d.slice(5).replace('-','/')}</button>`).join('');
-}
-
-function render(){
-  ensureDay(state.activeDate);
-  $('nameA').value=state.names[0]; $('nameB').value=state.names[1]; $('dayDate').value=state.activeDate;
-  renderTabs();
-  $('kidsWrap').innerHTML = kidCardHtml(0)+kidCardHtml(1);
-  drawAllCharts();
-  renderTemplateSelect();
-  save();
-}
-
-function drawAllCharts(){
-  [0,1].forEach(i=>{
-    const canvas = document.getElementById('chart-'+i); if(!canvas) return;
-    drawDonut(canvas, state.names[i], state.activeDate, normalizeRows(currentDay().kids[i].rows).segments);
-  });
-}
-
-function refreshKidVisual(kidIndex){
-  const norm = normalizeRows(currentDay().kids[kidIndex].rows);
-  const canvas = document.getElementById('chart-'+kidIndex);
-  if(canvas) drawDonut(canvas, state.names[kidIndex], state.activeDate, norm.segments);
-  const legend = document.getElementById('legend-'+kidIndex);
-  if(legend){
-    legend.innerHTML = norm.segments.length
-      ? norm.segments.slice(0,8).map(seg=>`<div class="legendItem"><span class="sw" style="background:${colorFor(seg.action)}"></span><span>${esc(segmentText(seg))}</span></div>`).join('')
-      : '<div class="legendItem"><span class="sw" style="background:#dbe3ff"></span><span>予定がまだありません</span></div>';
-  }
-  const warn = document.getElementById('warn-'+kidIndex);
-  if(warn){
-    warn.innerHTML = norm.warnings.join('<br>');
-    warn.classList.toggle('show', norm.warnings.length>0);
-  }
-}
-
-function renderKeepScroll(){
-  const y = window.scrollY;
-  render();
-  requestAnimationFrame(()=>window.scrollTo(0,y));
-}
-
-function renderTemplateSelect(){
-  $('templateSelect').innerHTML = '<option value="">テンプレートを選ぶ</option>' + state.templates.map((t,idx)=>`<option value="${idx}">${esc(t.name)}</option>`).join('');
-}
-
-function save(){
-  localStorage.setItem('kids_schedule_fun_v3', JSON.stringify(state));
-}
+function save(){try{localStorage.setItem(STORE,JSON.stringify({templates:S.templates,prefs:S.prefs,days:S.days,active:S.active}))}catch(e){}}
 function load(){
-  try{ const raw=localStorage.getItem('kids_schedule_fun_v3') || localStorage.getItem('kids_schedule_fun_v2'); if(raw){ state=JSON.parse(raw); }}catch(e){}
-  state.names = state.names || ['ひろと','ゆいな'];
-  state.days = state.days || {}; state.templates = state.templates || []; state.activeDate = state.activeDate || today();
-}
+  try{var r=localStorage.getItem(STORE);
+    if(r){var d=JSON.parse(r);if(d.prefs)S.prefs=Object.assign(S.prefs,d.prefs);if(d.days)S.days=d.days;if(d.templates)S.templates=d.templates;if(d.active)S.active=d.active;normalizeAll();return}
+    var o=localStorage.getItem(OLD);
+    if(o){var od=JSON.parse(o);
+      if(od.prefs)S.prefs=Object.assign(S.prefs,{nameA:od.prefs.nameA,nameB:od.prefs.nameB,title:od.prefs.title,bonus:od.prefs.bonus});
+      var pm=od.promise||{};
+      if(od.days){S.days=od.days;Object.keys(S.days).forEach(function(k){var day=S.days[k];['a','b'].forEach(function(q){if(day[q]){if(!day[q].hwGoal)day[q].hwGoal=pm.goal;if(!day[q].hwTime)day[q].hwTime=pm.full}})})}
+      if(od.templates)S.templates=od.templates;
+      if(od.active)S.active=od.active;
+      normalizeAll();save()}
+  }catch(e){}}
+function normalizeAll(){
+  Object.keys(S.days).forEach(function(k){var d=S.days[k];d.school=!!d.school;d.a=normKid(d.a);d.b=normKid(d.b)});
+  S.templates=(S.templates||[]).map(function(t){return{id:t.id||uid(),name:t.name,a:normKid(t.a),b:normKid(t.b)}})}
 
-function addRow(kidIndex){
-  currentDay().kids[kidIndex].rows.push({id:uid(),action:'自由記載',custom:'',start:'05:00',duration:'0.5'}); renderKeepScroll();
-}
-function sortRows(kidIndex){
-  currentDay().kids[kidIndex].rows.sort((a,b)=>timeToMin(a.start)-timeToMin(b.start)); renderKeepScroll();
-}
-function clearRows(kidIndex){
-  currentDay().kids[kidIndex].rows=[]; renderKeepScroll();
-}
-function copyOtherSchedule(kidIndex){
-  const otherIndex = kidIndex===0 ? 1 : 0;
-  const copied = clone(currentDay().kids[otherIndex].rows);
-  copied.forEach(r=>r.id=uid());
-  currentDay().kids[kidIndex].rows = copied;
-  renderKeepScroll();
-}
-function clearDay(){
-  currentDay().kids=[{rows:[]},{rows:[]}]; render();
-}
-function addWeekend(){
-  const fri = nextFriday(); [0,1,2].forEach(offset=>ensureDay(addDays(fri,offset))); state.activeDate=fri; render();
-}
-function saveTemplate(){
-  const name = prompt('テンプレート名を入れてください','いつもの予定'); if(!name) return;
-  state.templates.push({name, kids: clone(currentDay().kids)}); render();
-}
-function applyTemplate(){
-  const idx = $('templateSelect').value; if(idx==='') return; currentDay().kids = clone(state.templates[Number(idx)].kids); render();
-}
+function toast(s){var x=E('toast');x.textContent=s;x.className='toast show';setTimeout(function(){x.className='toast'},1300)}
+function timeOpts(a,b,cur){return times(a,b,30).map(function(v){return'<option '+(v===cur?'selected':'')+'>'+v+'</option>'}).join('')}
+function durOpts(cur){var x=[['0.25','15分'],['0.5','30分'],['0.75','45分'],['1','1時間'],['1.5','1時間半'],['2','2時間'],['2.5','2時間半'],['3','3時間']];
+  return x.map(function(v){return'<option value="'+v[0]+'" '+(String(cur)===v[0]?'selected':'')+'>'+v[1]+'</option>'}).join('')}
+function numOpts(arr,cur){return arr.map(function(v){return'<option value="'+v+'" '+(Number(v)===Number(cur)?'selected':'')+'>'+(v===0?'なし':(v<1?Math.round(v*60)+'分':(Number.isInteger(v)?v+'時間':(Math.floor(v)+'時間半')))) +'</option>'}).join('')}
+function actionOpts(cur){return ACTIONS.map(function(v){return'<option value="'+v+'" '+(v===cur?'selected':'')+'>'+(EMO[v]||'')+' '+v+'</option>'}).join('')}
 
-function updateKidName(){ state.names[0]=$('nameA').value||'子どもA'; state.names[1]=$('nameB').value||'子どもB'; render(); }
-function updateDate(v){ state.activeDate=v; ensureDay(v); render(); }
+function setMode(m){S.mode=m;
+  E('modeSingle').className=m==='single'?'on':'';E('modeWeekend').className=m==='weekend'?'on':'';
+  E('singleBox').style.display=m==='single'?'block':'none';E('weekendBox').style.display=m==='weekend'?'block':'none'}
+function setSchool(sc){S.school=sc;E('scOn').className='sc'+(sc?' on':'');E('scOff').className='no'+(sc?'':' on')}
 
-function drawExportPoster(){
-  const W=1600,H=1320; const canvas=document.createElement('canvas'); canvas.width=W; canvas.height=H; const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#f4f7ff'; ctx.fillRect(0,0,W,H);
-  roundRect(ctx,28,28,W-56,H-56,30,'#ffffff');
-  ctx.fillStyle='#5b6cff'; ctx.font='bold 52px sans-serif'; ctx.fillText('🌈 わくわく こどもスケジュール',56,96);
-  ctx.fillStyle='#64748b'; ctx.font='26px sans-serif'; ctx.fillText(state.activeDate+'　5:00〜21:00',58,134);
-  drawPosterKid(ctx, 0, 56, 170, 720, 1080);
-  drawPosterKid(ctx, 1, 824, 170, 720, 1080);
-  return canvas.toDataURL('image/jpeg',0.94);
-}
-function drawPosterKid(ctx, kidIndex, x, y, w, h){
-  const name = state.names[kidIndex]; const segs = normalizeRows(currentDay().kids[kidIndex].rows).segments;
-  roundRect(ctx,x,y,w,h,24,'#fafcff');
-  ctx.fillStyle=kidIndex===0?'#4f46e5':'#ec4899'; ctx.fillRect(x,y,w,14);
-  ctx.fillStyle='#1f2740'; ctx.font='bold 40px sans-serif'; ctx.fillText((kidIndex===0?'🚀 ':'🌟 ')+name,x+22,y+56);
-  const cx=x+w/2, cy=y+255, r=150, line=54;
-  ctx.strokeStyle='#edf2ff'; ctx.lineWidth=line; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
-  segs.forEach(seg=>{ const a1=((seg.start-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2; const a2=((seg.end-START_MIN)/(END_MIN-START_MIN))*Math.PI*2 - Math.PI/2; ctx.strokeStyle=colorFor(seg.action); ctx.lineWidth=line; ctx.beginPath(); ctx.arc(cx,cy,r,a1,a2); ctx.stroke(); });
-  ctx.fillStyle='#334155'; ctx.font='bold 28px sans-serif'; ctx.textAlign='center'; ctx.fillText('5:00〜21:00',cx,cy-10); ctx.font='bold 34px sans-serif'; ctx.fillText('予定',cx,cy+28); ctx.textAlign='left';
-  let yy=y+490;
-  if(!segs.length){ roundRect(ctx,x+24,yy,w-48,50,12,'#fff'); ctx.fillStyle='#64748b'; ctx.font='22px sans-serif'; ctx.fillText('予定がまだありません',x+38,yy+33); return; }
-  segs.slice(0,14).forEach(seg=>{ roundRect(ctx,x+24,yy,w-48,44,12,'#fff'); ctx.fillStyle=colorFor(seg.action); ctx.beginPath(); ctx.arc(x+44,yy+22,8,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#475569'; ctx.font='22px sans-serif'; ctx.fillText(segmentText(seg),x+62,yy+29); yy+=50; });
-}
+function makeSingle(){var date=E('singleDate').value||today(),sc=S.school,d=ensure(date,sc);d.school=sc;
+  ['a','b'].forEach(function(q){d[q].school=sc;
+    if(sc&&d[q].start==='07:00')d[q].start='15:30';if(!sc&&d[q].start==='15:30')d[q].start='07:00';
+    d[q].hwTime=sc?'19:00':'11:00';
+    if(!d[q].schedule.length)autoOne(d[q])});
+  S.active=date;save();render();toast('この日を作りました')}
+function makeWeekend(){var f=E('fridayDate').value||nextFri(),r=E('weekendRange').value,
+  items=r==='2'?[[addDays(f,1),false],[addDays(f,2),false]]:[[f,true],[addDays(f,1),false],[addDays(f,2),false]];
+  items.forEach(function(x){var d=ensure(x[0],x[1]);d.school=x[1];
+    ['a','b'].forEach(function(q){d[q].school=x[1];d[q].start=x[1]?'15:30':'07:00';d[q].hwTime=x[1]?'19:00':'11:00';autoOne(d[q])})});
+  S.active=items[0][0];save();render();toast('週末を作りました')}
 
-// events
-$('dayDate').addEventListener('change',e=>updateDate(e.target.value));
-$('nameA').addEventListener('change',updateKidName); $('nameB').addEventListener('change',updateKidName);
-$('saveTemplate').addEventListener('click',saveTemplate); $('applyTemplate').addEventListener('click',applyTemplate);
-$('addWeekend').addEventListener('click',addWeekend); $('clearDay').addEventListener('click',clearDay);
-$('renderBoth').addEventListener('click',render); $('makeJpg').addEventListener('click',()=>{ const url=drawExportPoster(); $('jpgPreview').src=url; $('jpgPreviewWrap').classList.add('show'); $('jpgPreviewWrap').scrollIntoView({behavior:'smooth'}); });
-$('dayTabs').addEventListener('click',e=>{ const btn=e.target.closest('button[data-date]'); if(btn){ state.activeDate=btn.getAttribute('data-date'); render(); }});
-$('kidsWrap').addEventListener('click',e=>{
-  const kidBox=e.target.closest('.kid'); if(!kidBox) return; const kidIndex=Number(kidBox.getAttribute('data-kid')); const rows=currentDay().kids[kidIndex].rows;
-  if(e.target.classList.contains('addRow')) addRow(kidIndex);
-  if(e.target.classList.contains('sortRows')) sortRows(kidIndex);
-  if(e.target.classList.contains('copyOther')) copyOtherSchedule(kidIndex);
-  if(e.target.classList.contains('clearRows')) clearRows(kidIndex);
-  if(e.target.classList.contains('deleteRow')){ const row=e.target.closest('.row'); const id=row.getAttribute('data-row'); currentDay().kids[kidIndex].rows = rows.filter(r=>r.id!==id); renderKeepScroll(); }
-});
-$('kidsWrap').addEventListener('change',e=>{
-  const kidBox=e.target.closest('.kid'); const rowBox=e.target.closest('.row'); if(!kidBox||!rowBox) return; const kidIndex=Number(kidBox.getAttribute('data-kid')); const rowId=rowBox.getAttribute('data-row'); const row=currentDay().kids[kidIndex].rows.find(r=>r.id===rowId); if(!row) return;
-  if(e.target.classList.contains('field-action')) row.action=e.target.value;
-  if(e.target.classList.contains('field-custom')) row.custom=e.target.value;
-  if(e.target.classList.contains('field-start')) row.start=e.target.value;
-  if(e.target.classList.contains('field-duration')) row.duration=e.target.value;
-  refreshKidVisual(kidIndex);
-  save();
-});
-$('kidsWrap').addEventListener('input',e=>{
-  const kidBox=e.target.closest('.kid'); const rowBox=e.target.closest('.row'); if(!kidBox||!rowBox) return; const kidIndex=Number(kidBox.getAttribute('data-kid')); const rowId=rowBox.getAttribute('data-row'); const row=currentDay().kids[kidIndex].rows.find(r=>r.id===rowId); if(!row) return;
-  if(e.target.classList.contains('field-custom')){ row.custom=e.target.value; refreshKidVisual(kidIndex); save(); }
-});
+function goalLabel(g){for(var i=0;i<GOALS.length;i++)if(GOALS[i][0]===g)return GOALS[i][1];return g}
+function renderPromise(){E('titleView').textContent=S.prefs.title;E('bonusView').textContent='勉強30分ごとに ゲーム＋'+S.prefs.bonus+'分！'}
+function renderTabs(){var ds=Object.keys(S.days).sort();
+  E('dateTabs').innerHTML=ds.map(function(d){var w=['日','月','火','水','木','金','土'][new Date(d+'T00:00:00').getDay()];
+    return'<button data-date="'+d+'" class="'+(d===S.active?'on':'')+'">'+d.slice(5).replace('-','/')+'('+w+')</button>'}).join('')}
 
-load();
-if(!state.activeDate) state.activeDate=today();
-$('dayDate').value = state.activeDate;
-ensureDay(state.activeDate);
-render();
+function kidHtml(key){
+  var d=S.days[S.active],k=d[key],name=key==='a'?S.prefs.nameA:S.prefs.nameB,emoji=key==='a'?'🚀':'🌟';
+  var goalBtns=GOALS.map(function(g){return'<button data-goal="'+g[0]+'" class="'+(k.hwGoal===g[0]?'on':'')+'">'+g[1]+'</button>'}).join('');
+  var sentence=k.hwTime+'までに<br>「'+goalLabel(k.hwGoal)+'」おわらせる！';
+  var bonus=Math.floor(k.study*2)*S.prefs.bonus;
+  var rows=k.schedule.map(function(r){return'<div class="srow" data-row="'+r.id+'"><select class="rStart">'+timeOpts('06:00','21:30',r.start)+'</select><select class="rAction">'+actionOpts(r.action)+'</select><select class="rDur">'+durOpts(r.dur)+'</select><button class="danger del">×</button></div>'}).join('');
+  return'<div class="card kid '+(key==='b'?'bb':'')+'" data-kid="'+key+'">'
+    +'<div class="kidhead"><div class="kidname">'+emoji+' '+name+'</div><span class="badge">'+(k.school?'学校あり':'学校なし')+'</span></div>'
+    +'<div class="mission"><div class="lab">🎯 きょうの 宿題ミッション</div>'
+      +'<label>どこまで やる？</label><div class="seg three goal">'+goalBtns+'</div>'
+      +'<label class="mt">何時までに？</label><select class="kHwTime">'+timeOpts('15:00','21:00',k.hwTime)+'</select>'
+      +'<div class="sentence">'+sentence+'</div></div>'
+    +'<label class="mt">🕒 '+(k.school?'帰宅':'起床')+'の時間</label><select class="kStart">'+timeOpts('06:00','18:00',k.start)+'</select>'
+    +'<button class="primary full big plan makePlan">✨ けいかくを作る</button>'
+    +'<div class="mini mt">🎮 きほんゲーム '+Math.round(k.game*60)+'分 ＋ 勉強ボーナス '+bonus+'分</div>'
+    +'<details class="tune"'+(openTune[key]?' open':'')+'><summary>こまかい調整（じかん・予定の手直し）</summary>'
+      +'<div class="grid3 mt"><div><label>宿題にかける時間</label><select class="kHw">'+numOpts([.5,1,1.5,2,2.5,3],k.homework)+'</select></div>'
+      +'<div><label>追加の勉強</label><select class="kStudy">'+numOpts([0,.5,1,1.5,2],k.study)+'</select></div>'
+      +'<div><label>基本ゲーム</label><select class="kGame">'+numOpts([0,.5,1,1.5,2],k.game)+'</select></div>'
+      +'<div><label>夕食</label><select class="kDinner">'+timeOpts('17:00','20:00',k.dinner)+'</select></div>'
+      +'<div><label>お風呂</label><select class="kBath">'+timeOpts('17:30','20:30',k.bath)+'</select></div></div>'
+      +'<div class="quick"><button class="soft addRow">＋予定をたす</button>'+(key==='b'?'<button class="warm copyA">Aをコピー</button>':'')+'</div>'
+      +'<div class="schedule"><div class="shead"><div>時こく</div><div>やること</div><div>時間</div><div></div></div>'+rows+'</div>'
+    +'</details></div>'}
+
+function renderKids(){E('kids').innerHTML=(S.active&&S.days[S.active])?kidHtml('a')+kidHtml('b'):'<div class="card mini">まず「① 作る日」で日にちを作ってね。</div>'}
+function renderTemplates(){E('savedTemplate').innerHTML='<option value="">保存済みテンプレート</option>'+S.templates.map(function(t){return'<option value="'+t.id+'">'+t.name+'</option>'}).join('')}
+function render(){renderPromise();renderTabs();renderKids();renderTemplates();makeJpg()}
+
+function autoOne(k){
+  var arr=[],cur=tmin(k.start),
+    hw=Math.round(k.homework*60),study=Math.round(k.study*60),
+    bonus=Math.floor(study/30)*S.prefs.bonus,game=Math.round(k.game*60)+bonus,
+    dn=tmin(k.dinner),ba=tmin(k.bath);
+  function push(mStart,a,mDur){arr.push(row(mtime(mStart),a,String(mDur/60)))}
+  if(k.school){push(cur,'おやつ',15);cur+=15}
+  else{push(cur,'起床',30);cur+=30;push(cur,'朝食',30);cur+=30}
+  var first=Math.min(60,hw);if(first){push(cur,'宿題',first);cur+=first}
+  if(study){push(cur,'勉強',study);cur+=study}
+  if(game){push(cur,'ゲーム',game);cur+=game}
+  var rem=hw-first;
+  if(!k.school){push(720,'昼食',30);push(840,'おやつ',15);push(870,'遊ぶ',90);if(rem){push(990,'宿題',rem);rem=0}}
+  else if(rem&&cur+rem<=dn){push(cur,'宿題',rem);cur+=rem;rem=0}
+  push(dn,'夕食',30);
+  if(rem)push(dn+30,'宿題',rem);
+  push(ba,'お風呂',30);
+  push(ba+30,'明日の準備',30);
+  push(Math.max(ba+60,1200),'自由時間',30);
+  push(1245,'歯みがき',15);
+  k.schedule=arr.sort(function(a,b){return tmin(a.start)-tmin(b.start)})}
+
+function autoBoth(){if(!S.active)return;autoOne(S.days[S.active].a);autoOne(S.days[S.active].b);save();renderKids();makeJpg();toast('けいかくを作りました')}
+
+/* ---------- JPG ---------- */
+function rr(c,x,y,w,h,r,fill){c.beginPath();if(c.roundRect)c.roundRect(x,y,w,h,r);else c.rect(x,y,w,h);c.fillStyle=fill;c.fill()}
+function catColors(a){var m={study:['#efe9ff','#6d28d9'],play:['#e0f7fb','#0e7490'],life:['#fff2df','#c2410c'],other:['#e6f7ec','#15803d']};return m[cat(a)]}
+function drawKid(c,key,k,x,y,w,rowsMax,rowH){
+  var name=key==='a'?S.prefs.nameA:S.prefs.nameB,color=key==='a'?'#2563eb':'#ea580c',soft=key==='a'?'#e8f0ff':'#fff2e6',emoji=key==='a'?'🚀':'🌟';
+  var missionH=170, footH=70, h=54+missionH+rowsMax*rowH+footH+24;
+  rr(c,x,y,w,h,24,'#fff');rr(c,x,y,w,16,8,color);
+  c.textBaseline='alphabetic';
+  c.fillStyle='#182338';c.font='900 34px sans-serif';c.fillText(emoji+' '+name,x+22,y+56);
+  c.fillStyle=color;c.font='900 18px sans-serif';c.fillText(k.school?'学校あり':'学校なし',x+w-118,y+56);
+  var my=y+72;
+  rr(c,x+18,my,w-36,missionH-6,16,soft);
+  c.fillStyle=color;c.font='900 21px sans-serif';c.fillText('🎯 宿題ミッション',x+34,my+34);
+  c.fillStyle='#182338';c.font='900 30px sans-serif';c.fillText(k.hwTime+' までに',x+34,my+78);
+  c.fillStyle=color;c.font='900 34px sans-serif';c.fillText('「'+goalLabel(k.hwGoal)+'」おわらせる！',x+34,my+120);
+  var bonus=Math.floor(k.study*2)*S.prefs.bonus;
+  c.fillStyle='#166534';c.font='900 19px sans-serif';c.fillText('🎮 ゲーム きほん'+Math.round(k.game*60)+'分 ＋ ボーナス'+bonus+'分',x+34,my+154);
+  var top=my+missionH+6,
+    arr=clone(k.schedule).sort(function(a,b){return tmin(a.start)-tmin(b.start)});
+  for(var i=0;i<rowsMax;i++){
+    var yy=top+i*rowH;
+    if(i>=arr.length){continue}
+    var r=arr[i],cc=catColors(r.action);
+    rr(c,x+18,yy,w-36,rowH-6,12,cc[0]);
+    c.fillStyle=cc[1];c.font='900 20px sans-serif';c.fillText(r.start,x+30,yy+rowH/2+3);
+    c.fillStyle='#182338';c.font='900 24px sans-serif';c.fillText((EMO[r.action]||'')+' '+r.action,x+126,yy+rowH/2+3);
+    c.fillStyle='#8a93a5';c.font='700 17px sans-serif';c.fillText(Math.round(Number(r.dur)*60)+'分',x+w-150,yy+rowH/2+3);
+    c.beginPath();c.arc(x+w-46,yy+rowH/2-1,15,0,Math.PI*2);c.lineWidth=3;c.strokeStyle=cc[1];c.stroke()}
+  var fy=y+h-footH+8;
+  rr(c,x+18,fy,w-36,footH-20,14,'#fff7e6');
+  c.fillStyle='#b45309';c.font='900 22px sans-serif';c.fillText('ぜんぶ できたら 💮 はなまる！',x+34,fy+34);
+  return h}
+
+function makeJpg(){
+  if(!S.active||!S.days[S.active])return;
+  var d=S.days[S.active],W=1600,pad=36,colW=(W-pad*3)/2,
+    rowH=56, rowsMax=Math.max(d.a.schedule.length,d.b.schedule.length,6),
+    headH=230,
+    colH=54+170+rowsMax*rowH+70+24,
+    H=headH+colH+pad;
+  var cv=document.createElement('canvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
+  c.fillStyle='#eaf1fb';c.fillRect(0,0,W,H);
+  rr(c,pad,24,W-pad*2,headH-40,22,'#fff6ea');
+  c.fillStyle='#182338';c.font='900 40px sans-serif';c.fillText('📢 '+S.prefs.title,pad+24,80);
+  var lines=[['1','#ea580c','じぶんで決めた時間に、決めたところまで宿題をやる！'],
+             ['2','#dc2626','できたら 花まる💮 ＆ ゲームタイム🎮'],
+             ['3','#0284c7','勉強30分ごとに ゲーム＋'+S.prefs.bonus+'分！']];
+  lines.forEach(function(v,i){var yy=104+i*40;
+    c.beginPath();c.arc(pad+40,yy+2,16,0,Math.PI*2);c.fillStyle=v[1];c.fill();
+    c.fillStyle='#fff';c.font='900 19px sans-serif';c.fillText(v[0],pad+34,yy+9);
+    c.fillStyle='#182338';c.font='900 24px sans-serif';c.fillText(v[2],pad+70,yy+10)});
+  var wd=['日','月','火','水','木','金','土'][new Date(S.active+'T00:00:00').getDay()];
+  c.fillStyle='#182338';c.font='900 34px sans-serif';c.fillText(S.active.replace(/-/g,'/')+'（'+wd+'）',pad+4,headH-8);
+  drawKid(c,'a',d.a,pad,headH,colW,rowsMax,rowH);
+  drawKid(c,'b',d.b,pad*2+colW,headH,colW,rowsMax,rowH);
+  E('jpg').src=cv.toDataURL('image/jpeg',.94)}
+
+/* ---------- templates ---------- */
+function baseSchedule(type){var k=kid(type==='weekday');autoOne(k);return k.schedule}
+function applyBase(type){if(!S.active)return;var d=S.days[S.active];
+  d.a.schedule=clone(baseSchedule(type));d.b.schedule=clone(baseSchedule(type));
+  d.a.schedule.forEach(function(r){r.id=uid()});d.b.schedule.forEach(function(r){r.id=uid()});
+  save();renderKids();makeJpg();toast('ひな形を入れました')}
+function saveTemplate(){if(!S.active)return;var n=E('templateName').value.trim();if(!n){toast('テンプレ名を入れてね');return}
+  var d=S.days[S.active];S.templates.push({id:uid(),name:n,a:clone(d.a),b:clone(d.b)});
+  E('templateName').value='';save();renderTemplates();toast('保存しました')}
+function applySaved(){if(!S.active)return;var id=E('savedTemplate').value,t=S.templates.find(function(x){return x.id===id});if(!t)return;
+  S.days[S.active].a=clone(t.a);S.days[S.active].b=clone(t.b);
+  ['a','b'].forEach(function(q){S.days[S.active][q].schedule.forEach(function(r){r.id=uid()})});
+  save();renderKids();makeJpg();toast('よびだしました')}
+
+/* ---------- settings ---------- */
+function openSettings(){E('nameA').value=S.prefs.nameA;E('nameB').value=S.prefs.nameB;E('promiseTitle').value=S.prefs.title;E('bonusRatio').value=String(S.prefs.bonus);E('settingsModal').className='modal show'}
+function settingsSave(){S.prefs.nameA=E('nameA').value.trim()||'子どもA';S.prefs.nameB=E('nameB').value.trim()||'子どもB';S.prefs.title=E('promiseTitle').value;S.prefs.bonus=Number(E('bonusRatio').value);save();E('settingsModal').className='modal';render();toast('保存しました')}
+
+/* ---------- init & events ---------- */
+function init(){
+  load();
+  E('singleDate').value=today();E('fridayDate').value=nextFri();setSchool(true);
+  if(!Object.keys(S.days).length){ensure(today(),true);S.active=today();autoOne(S.days[today()].a);autoOne(S.days[today()].b);save()}
+  else if(!S.active){S.active=Object.keys(S.days).sort()[0]}
+  render();
+  if(!S.prefs.nameA||S.prefs.nameA==='子どもA')setTimeout(openSettings,250);
+  if(('standalone'in navigator)&&!navigator.standalone)E('installHint').className='install show';
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}
+
+E('modeSingle').onclick=function(){setMode('single')};
+E('modeWeekend').onclick=function(){setMode('weekend')};
+E('scOn').onclick=function(){setSchool(true)};
+E('scOff').onclick=function(){setSchool(false)};
+E('makeSingle').onclick=makeSingle;
+E('makeWeekend').onclick=makeWeekend;
+E('dateTabs').onclick=function(e){var b=e.target.closest('[data-date]');if(b){S.active=b.getAttribute('data-date');save();render()}};
+E('applyBase').onclick=function(){applyBase(E('baseTemplate').value)};
+E('saveTemplate').onclick=saveTemplate;
+E('applySaved').onclick=applySaved;
+E('autoBoth').onclick=autoBoth;
+E('refreshJpg').onclick=makeJpg;
+E('openSettings').onclick=openSettings;
+E('settingsCancel').onclick=function(){E('settingsModal').className='modal'};
+E('settingsSave').onclick=settingsSave;
+
+E('kids').onchange=function(e){var box=e.target.closest('.kid');if(!box)return;
+  var key=box.getAttribute('data-kid'),k=S.days[S.active][key],rb=e.target.closest('[data-row]'),t=e.target;
+  if(rb){var r=k.schedule.find(function(x){return x.id===rb.getAttribute('data-row')});if(r){
+    if(t.classList.contains('rStart'))r.start=t.value;
+    if(t.classList.contains('rAction'))r.action=t.value;
+    if(t.classList.contains('rDur'))r.dur=t.value}}
+  else{
+    if(t.classList.contains('kHwTime'))k.hwTime=t.value;
+    if(t.classList.contains('kStart'))k.start=t.value;
+    if(t.classList.contains('kHw'))k.homework=Number(t.value);
+    if(t.classList.contains('kStudy'))k.study=Number(t.value);
+    if(t.classList.contains('kGame'))k.game=Number(t.value);
+    if(t.classList.contains('kDinner'))k.dinner=t.value;
+    if(t.classList.contains('kBath'))k.bath=t.value}
+  save();renderKids();makeJpg()};
+
+E('kids').onclick=function(e){var box=e.target.closest('.kid');if(!box)return;
+  var key=box.getAttribute('data-kid'),k=S.days[S.active][key],t=e.target;
+  if(t.hasAttribute('data-goal')){k.hwGoal=t.getAttribute('data-goal');save();renderKids();makeJpg();return}
+  if(t.classList.contains('makePlan')){autoOne(k);save();renderKids();makeJpg();toast('けいかくを作ったよ');return}
+  if(t.classList.contains('addRow')){var st=k.schedule.length?addMin(k.schedule[k.schedule.length-1].start,30):k.start;k.schedule.push(row(st,'自由時間','.5'));save();renderKids();makeJpg();return}
+  if(t.classList.contains('copyA')){S.days[S.active].b=clone(S.days[S.active].a);S.days[S.active].b.schedule.forEach(function(r){r.id=uid()});save();renderKids();makeJpg();return}
+  if(t.classList.contains('del')){var rb=e.target.closest('[data-row]');k.schedule=k.schedule.filter(function(r){return r.id!==rb.getAttribute('data-row')});save();renderKids();makeJpg();return}};
+
+E('kids').addEventListener('toggle',function(e){var box=e.target.closest('.kid');if(!box)return;if(e.target.classList.contains('tune'))openTune[box.getAttribute('data-kid')]=e.target.open},true);
+
+window.addEventListener('load',init);
 })();
 </script>
 </body>
