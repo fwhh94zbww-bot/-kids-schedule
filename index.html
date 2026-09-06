@@ -247,11 +247,11 @@ function kidCardHtml(kidIndex){
       <span class="badge">5:00〜21:00</span>
     </div>
     <div class="canvasWrap"><canvas class="chartCanvas" id="chart-${kidIndex}"></canvas></div>
-    <div class="legend">
+    <div class="legend" id="legend-${kidIndex}">
       ${norm.segments.length ? norm.segments.slice(0,8).map(seg=>`<div class="legendItem"><span class="sw" style="background:${colorFor(seg.action)}"></span><span>${esc(segmentText(seg))}</span></div>`).join('') : '<div class="legendItem"><span class="sw" style="background:#dbe3ff"></span><span>予定がまだありません</span></div>'}
     </div>
     <div class="warn ${norm.warnings.length?'show':''}" id="warn-${kidIndex}">${norm.warnings.join('<br>')}</div>
-    <div class="sectionTitle" style="margin-top:12px"><span>予定入力</span><span class="helper">自由時間は表示しません</span></div>
+    <div class="sectionTitle" style="margin-top:12px"><span>予定入力</span><span class="helper">入力しても画面位置はそのまま</span></div>
     <div class="rows">
       <div class="rowHead"><div>項目</div><div>自由記載</div><div>開始</div><div>時間</div><div></div></div>
       ${kid.rows.map(r=>`
@@ -264,9 +264,10 @@ function kidCardHtml(kidIndex){
         </div>
       `).join('')}
     </div>
-    <div class="grid3" style="margin-top:10px">
+    <div class="grid4" style="margin-top:10px">
       <button class="green addRow">＋予定を追加</button>
       <button class="secondary sortRows">時間順に並べる</button>
+      <button class="orange copyOther">${kidIndex===0 ? esc(state.names[1]) : esc(state.names[0])}と同じ予定にする</button>
       <button class="danger clearRows">この子をクリア</button>
     </div>
   </div>`;
@@ -294,6 +295,29 @@ function drawAllCharts(){
   });
 }
 
+function refreshKidVisual(kidIndex){
+  const norm = normalizeRows(currentDay().kids[kidIndex].rows);
+  const canvas = document.getElementById('chart-'+kidIndex);
+  if(canvas) drawDonut(canvas, state.names[kidIndex], state.activeDate, norm.segments);
+  const legend = document.getElementById('legend-'+kidIndex);
+  if(legend){
+    legend.innerHTML = norm.segments.length
+      ? norm.segments.slice(0,8).map(seg=>`<div class="legendItem"><span class="sw" style="background:${colorFor(seg.action)}"></span><span>${esc(segmentText(seg))}</span></div>`).join('')
+      : '<div class="legendItem"><span class="sw" style="background:#dbe3ff"></span><span>予定がまだありません</span></div>';
+  }
+  const warn = document.getElementById('warn-'+kidIndex);
+  if(warn){
+    warn.innerHTML = norm.warnings.join('<br>');
+    warn.classList.toggle('show', norm.warnings.length>0);
+  }
+}
+
+function renderKeepScroll(){
+  const y = window.scrollY;
+  render();
+  requestAnimationFrame(()=>window.scrollTo(0,y));
+}
+
 function renderTemplateSelect(){
   $('templateSelect').innerHTML = '<option value="">テンプレートを選ぶ</option>' + state.templates.map((t,idx)=>`<option value="${idx}">${esc(t.name)}</option>`).join('');
 }
@@ -308,13 +332,20 @@ function load(){
 }
 
 function addRow(kidIndex){
-  currentDay().kids[kidIndex].rows.push({id:uid(),action:'自由記載',custom:'',start:'05:00',duration:'0.5'}); render();
+  currentDay().kids[kidIndex].rows.push({id:uid(),action:'自由記載',custom:'',start:'05:00',duration:'0.5'}); renderKeepScroll();
 }
 function sortRows(kidIndex){
-  currentDay().kids[kidIndex].rows.sort((a,b)=>timeToMin(a.start)-timeToMin(b.start)); render();
+  currentDay().kids[kidIndex].rows.sort((a,b)=>timeToMin(a.start)-timeToMin(b.start)); renderKeepScroll();
 }
 function clearRows(kidIndex){
-  currentDay().kids[kidIndex].rows=[]; render();
+  currentDay().kids[kidIndex].rows=[]; renderKeepScroll();
+}
+function copyOtherSchedule(kidIndex){
+  const otherIndex = kidIndex===0 ? 1 : 0;
+  const copied = clone(currentDay().kids[otherIndex].rows);
+  copied.forEach(r=>r.id=uid());
+  currentDay().kids[kidIndex].rows = copied;
+  renderKeepScroll();
 }
 function clearDay(){
   currentDay().kids=[{rows:[]},{rows:[]}]; render();
@@ -368,8 +399,9 @@ $('kidsWrap').addEventListener('click',e=>{
   const kidBox=e.target.closest('.kid'); if(!kidBox) return; const kidIndex=Number(kidBox.getAttribute('data-kid')); const rows=currentDay().kids[kidIndex].rows;
   if(e.target.classList.contains('addRow')) addRow(kidIndex);
   if(e.target.classList.contains('sortRows')) sortRows(kidIndex);
+  if(e.target.classList.contains('copyOther')) copyOtherSchedule(kidIndex);
   if(e.target.classList.contains('clearRows')) clearRows(kidIndex);
-  if(e.target.classList.contains('deleteRow')){ const row=e.target.closest('.row'); const id=row.getAttribute('data-row'); currentDay().kids[kidIndex].rows = rows.filter(r=>r.id!==id); render(); }
+  if(e.target.classList.contains('deleteRow')){ const row=e.target.closest('.row'); const id=row.getAttribute('data-row'); currentDay().kids[kidIndex].rows = rows.filter(r=>r.id!==id); renderKeepScroll(); }
 });
 $('kidsWrap').addEventListener('change',e=>{
   const kidBox=e.target.closest('.kid'); const rowBox=e.target.closest('.row'); if(!kidBox||!rowBox) return; const kidIndex=Number(kidBox.getAttribute('data-kid')); const rowId=rowBox.getAttribute('data-row'); const row=currentDay().kids[kidIndex].rows.find(r=>r.id===rowId); if(!row) return;
@@ -377,11 +409,12 @@ $('kidsWrap').addEventListener('change',e=>{
   if(e.target.classList.contains('field-custom')) row.custom=e.target.value;
   if(e.target.classList.contains('field-start')) row.start=e.target.value;
   if(e.target.classList.contains('field-duration')) row.duration=e.target.value;
-  render();
+  refreshKidVisual(kidIndex);
+  save();
 });
 $('kidsWrap').addEventListener('input',e=>{
   const kidBox=e.target.closest('.kid'); const rowBox=e.target.closest('.row'); if(!kidBox||!rowBox) return; const kidIndex=Number(kidBox.getAttribute('data-kid')); const rowId=rowBox.getAttribute('data-row'); const row=currentDay().kids[kidIndex].rows.find(r=>r.id===rowId); if(!row) return;
-  if(e.target.classList.contains('field-custom')){ row.custom=e.target.value; drawAllCharts(); save(); }
+  if(e.target.classList.contains('field-custom')){ row.custom=e.target.value; refreshKidVisual(kidIndex); save(); }
 });
 
 load();
